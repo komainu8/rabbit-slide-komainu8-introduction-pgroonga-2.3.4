@@ -1,0 +1,85 @@
+= PGroonga 2.3.4\n 新機能紹介
+
+ : subtitle
+    WALの自動適用と\nクラッシュセーフ機能
+ : author
+    堀本 泰弘
+ : institution
+    株式会社クリアコード
+# : content-source
+#    イベント名
+ : date
+    2021-12-24
+ : allotted-time
+    30m
+ : start-time
+    2021-12-24T16:05:00+09:00
+ : end-time
+    2021-12-24T16:35:00+09:00
+ : theme
+    .
+
+= PGroonga 2.3.4 の新機能
+
+下記の機能が新規追加
+
+  * WALの自動適用
+  * クラッシュセーフ
+
+= 該当する環境
+
+* ストリーミングレプリケーション構成
+* PGroongaのインデックスをレプリケーションしている
+
+= いままでの動作
+
+いままでは、スタンバイサーバーで以下の操作が必要だった
+
+* 定期的にPGroongaのWALを適用
+* PGroongaのWALを適用後削除
+
+= いままでの動作
+
+実行しない場合\nPGroongaのWALは増加し続ける
+
+= 2.3.4 以降の動作
+
+PGroonga 2.3.4 以降
+
+* 定期的にPGroongaのWALを自動適用
+* PGroongaのWALの最大サイズを制限
+
+= WALの自動適用
+
+* 定期的に pgroonga_wal_apply関数 を使って、PGroongaのWALを適用する
+
+= WALの自動適用\n設定
+
+以下のパラメータを((*スタンバイサーバー*))に設定する
+
+  # coderay sql
+
+    shared_preload_libraries = 'pgroonga_wal_applier'
+
+= WALの自動適用\n設定
+
+* 適用間隔はデフォルトで60秒
+
+= WALの自動適用\n設定
+
+適用間隔の変更は、以下のパラメータを((*スタンバイサーバー*))に設定することで可能
+
+  # coderay sql
+
+    pgroonga_wal_applier.naptime = internval
+
+= WALの自動適用\n設定
+
+* 注意
+
+  * 適用間隔を短くしすぎるとCPUリソースを多く使う
+  * 適用後もWALは((*削除されない*))
+
+= WALの最大サイズ制限
+
+
