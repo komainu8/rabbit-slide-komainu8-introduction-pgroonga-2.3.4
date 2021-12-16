@@ -26,10 +26,12 @@
   * WALの自動適用
   * クラッシュセーフ
 
-= 該当する環境
+= WALの自動適用
 
-* ストリーミングレプリケーション構成
-* PGroongaのインデックスをレプリケーションしている
+* 該当する環境
+
+  * ストリーミングレプリケーション構成
+  * pgroonga.enable_wal が有効
 
 = いままでの動作
 
@@ -40,7 +42,9 @@
 
 = いままでの動作
 
-実行しない場合\nPGroongaのWALは増加し続ける
+  # image
+  # src = images/WAL-increase.png
+  # relative_height = 90
 
 = 2.3.4 以降の動作
 
@@ -53,6 +57,12 @@ PGroonga 2.3.4 以降
 
 * 定期的に pgroonga_wal_apply関数 を使って、PGroongaのWALを適用する
 
+= WALの自動適用
+
+  # image
+  # src = images/WAL-auto-apply.png
+  # relative_height = 80
+
 = WALの自動適用\n設定
 
 以下のパラメータを((*スタンバイサーバー*))に設定する
@@ -61,19 +71,15 @@ PGroonga 2.3.4 以降
 
     shared_preload_libraries = 'pgroonga_wal_applier'
 
-= WALの自動適用\n設定
+= WALの自動適用\n適用間隔の変更
 
-* 適用間隔はデフォルトで60秒
-
-= WALの自動適用\n設定
-
-適用間隔の変更は、以下のパラメータを((*スタンバイサーバー*))に設定することで可能
+以下のパラメータを((*スタンバイサーバー*))に設定することで可能
 
   # coderay sql
 
     pgroonga_wal_applier.naptime = internval
 
-= WALの自動適用\n設定
+= WALの自動適用\n注意点
 
 * 注意
 
@@ -82,4 +88,98 @@ PGroonga 2.3.4 以降
 
 = WALの最大サイズ制限
 
+* WALは削除されないが((*最大サイズを制限できる*))
 
+= WALの最大サイズ制限\n設定
+
+以下のパラメータを((*プライマリーサーバー*))に設定する
+
+  # coderay sql
+
+    pgroonga.max_wal_size = size
+
+= WALの最大サイズ制限
+
+* 0を設定するとサイズ制限なし
+* デフォルトは0でサイズ制限なし
+* 最大サイズを超えた場合は、WALの先頭から上書きしていく
+
+= WALの最大サイズ制限
+
+  # image
+  # src = images/WAL-max-size.png
+  # relative_height = 100
+
+= WALの最大サイズ制限\n注意点
+
+* 注意
+
+  * 最大サイズを超える前にWALが適用されてないと、WALが破損する
+  * 設定したWALの適用間隔で蓄積されるWALサイズより十分に大きい数字を pgroonga.max_wal_size に指定する
+
+= クラッシュセーフ機能
+
+クラッシュ時にPGroongaのインデックスを((*自動*))で復旧
+
+= いままでの動作
+
+* PostgreSQLがクラッシュした時
+
+  * PGroongaのインデックスを手動(REINDEX)で復旧
+
+= クラッシュセーフ機能\n設定
+
+以下のパラメータを((*プライマリーサーバー*))に設定する
+
+  # coderay sql
+
+    shared_preload_libraries = 'pgroonga_crash_safer'
+    pgroonga.enable_crash_safe = on
+
+= クラッシュセーフ機能
+
+* データベースごとに必ず一つPostgreSQLのワーカープロセスを使う
+* インデックスが更新されるごとにWALに変更を書き出す
+
+= クラッシュセーフ機能
+
+  # image
+  # src = images/crash-safe-WAL-apply.png
+  # relative_height = 90
+
+= クラッシュセーフ機能
+
+  # image
+  # src = images/crash-safe-WAL-apply-shutdown.png
+  # relative_height = 90
+
+= クラッシュセーフ機能
+
+* 起動時にWALが残っていたら正しくシャットダウンできていないと判断し自動で復旧
+
+= クラッシュセーフ機能\n自動復旧
+
+(1) PGroongaのWALから復旧\n
+    -> 復旧に失敗したら、次のページの動作を行う
+
+= クラッシュセーフ機能\n自動復旧
+
+(1) 既存のGroongaのデータベースを削除
+(2) Groongaのデータベースを新規作成
+(3) REINDEX実行
+
+= クラッシュセーフ機能\n設定
+
+WALをストレージにフラッシュする間隔は以下のパラメータで変更
+
+  # coderay sql
+
+    pgroonga_crash_safer.flush_naptime = internval
+
+= クラッシュセーフ機能\n注意点
+
+* データベース毎に一つワーカープロセスを使うため、 max_worker_processes を増やす必要があるかもしれない
+
+= クラッシュセーフ機能\n注意点
+
+* インデックスを更新するたびWALを書き出すので、パフォーマンスが劣化する(書き込み性能が落ちる)
