@@ -55,7 +55,7 @@ PGroonga 2.3.4 以降
 
 = WALの自動適用
 
-* 定期的に pgroonga_wal_apply関数 を使って、PGroongaのWALを適用する
+* 定期的に pgroonga_wal_appsly 関数 を使って、PGroongaのWALを適用する
 
 = WALの自動適用
 
@@ -73,26 +73,28 @@ PGroonga 2.3.4 以降
 
 = WALの自動適用\n適用間隔の変更
 
-以下のパラメータを((*スタンバイサーバー*))に設定することで可能
+以下のパラメータを変更\n
+((*スタンバイサーバー*))に設定
 
   # coderay sql
 
-    pgroonga_wal_applier.naptime = internval
+    #10分に変更する場合
+    pgroonga_wal_applier.naptime = 10m
 
 = WALの自動適用\n注意点
 
 * 注意
 
   * 適用間隔を短くしすぎるとCPUリソースを多く使う
-  * 適用後もWALは((*削除されない*))
+  * 適用後もPGroongaのWALは((*削除されない*))
 
 = WALの最大サイズ制限
 
-* WALは削除されないが((*最大サイズを制限できる*))
+* PGroongaのWALは削除されないが((*最大サイズを制限できる*))
 
 = WALの最大サイズ制限\n設定
 
-以下のパラメータを((*プライマリーサーバー*))に設定する
+以下のパラメータを((*プライマリーサーバー*))に設定
 
   # coderay sql
 
@@ -114,7 +116,7 @@ PGroonga 2.3.4 以降
 
 * 注意
 
-  * 最大サイズを超える前にWALが適用されてないと、WALが破損する
+  * 最大サイズを超える前にWALが適用されていないと、WALが破損する
   * 設定したWALの適用間隔で蓄積されるWALサイズより十分に大きい数字を pgroonga.max_wal_size に指定する
 
 = クラッシュセーフ機能
